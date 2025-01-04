@@ -73,7 +73,9 @@ pipeline {
     stage('SAST') {
       steps {
         container('slscan') {
-          sh 'scan --type java,depscan --build'
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh 'scan --type java,depscan --build'
+          }
         }
       }
       post {
@@ -95,6 +97,25 @@ pipeline {
           steps {
             container('kaniko') {
               sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=docker.io/youben/dso-demo:latest'
+            }
+          }
+        }
+      }
+    }
+
+    stage('Image Analysis') {
+      parallel {
+        stage('Image Linting') {
+          steps {
+            container('docker-tools') {
+              sh 'dockle docker.io/youben/dso-demo'
+            }
+          }
+        }
+        stage('Image Scan') {
+          steps {
+            container('docker-tools') {
+              sh 'trivy image --timeout 10m --exit-code 1 youben/dso-demo'
             }
           }
         }

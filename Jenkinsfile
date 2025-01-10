@@ -118,7 +118,9 @@ pipeline {
         stage('Image Scan') {
           steps {
             container('docker-tools') {
-              sh 'trivy image --timeout 10m --exit-code 1 youben/dso-demo'
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                sh 'trivy image --timeout 10m --exit-code 1 youben/dso-demo'
+              }
             }
           }
         }

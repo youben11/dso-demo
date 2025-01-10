@@ -150,7 +150,7 @@ pipeline {
         stage('DAST') {
           steps {
             container('docker-tools') {
-              sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t $DEV_URL || exit 0'
+              sh 'docker run -t ghcr.io/zaproxy/zaproxy zap-baseline.py -t $DEV_URL || exit 0'
             }
           }
         }

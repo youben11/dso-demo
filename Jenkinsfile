@@ -1,7 +1,7 @@
 pipeline {
   environment {
-    ARGO_SERVER = '34.122.100.76:32100'
-    DEV_URL = 'http://34.122.100.76:30080/'
+    ARGO_SERVER = '34.173.210.160:32100'
+    DEV_URL = 'http://34.173.210.160:30080/'
   }
   agent {
     kubernetes {
@@ -127,6 +127,15 @@ pipeline {
         }
       }
     }
+
+    stage('Scan k8s Deploy Code') {
+      steps {
+        container('docker-tools') {
+          sh 'kubesec scan deploy/dso-demo-deploy.yaml'
+        }
+      }
+    }
+
 
     stage('Deploy to Dev') {
       environment {
